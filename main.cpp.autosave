@@ -1,0 +1,87 @@
+#include <QtCore/QCoreApplication>
+#include <QtCore>
+#include <vector>
+
+using namespace std;
+
+class indication{                                              // класс описывающий пару (X,Y)
+    bool first;
+    bool second;
+public:
+    pair<int,int> f;
+    pair<int,int> s;
+    indication(int x, int y){
+        first=false;
+        second=true;
+        s = make_pair(x,y);
+    }
+    indication(int x1, int y1, int x2, int y2){
+        first=true;
+        second=true;
+        f = make_pair(x1,y1);
+        s = make_pair(x2,y2);
+    }
+    bool two(){
+        return first;
+    }
+};
+
+//typedef pair< pair<int,int>*, pair<int,int>* > indication;
+vector<indication> indications;
+
+string to_string(int val) {                                     // Функция перевода int to string
+ char buff[32];
+ sprintf(buff,"%d",val);
+ return string(buff);
+}
+
+void load(){                                                    // Входные данные
+    indications.reserve(sizeof(indication)*9);                  // Данные из примера
+    indications.push_back(indication(1,10,2,11));
+    indications.push_back(indication(3,11));
+    indications.push_back(indication(4,11));
+    indications.push_back(indication(5,11,6,10));               // Дополнительные данные для проверки
+  /*  indications.push_back(indication(7,9,8,13));
+    indications.push_back(indication(9,14));
+    indications.push_back(indication(10,15));
+    indications.push_back(indication(11,15));
+    indications.push_back(indication(12,15));*/
+
+    qDebug()<<"created array of indication...";
+}
+
+string showPair (indication ind){                               // функция перевода отсчета в строку для вывода
+    string buf = "(";
+    if (ind.two()) buf+=to_string(ind.f.first)+string(", ")+to_string(ind.f.second)+string(") (");
+    buf+=to_string(ind.s.first)+string(", ")+to_string(ind.s.second)+')';
+    return buf;
+}
+
+
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
+    string myOut="";
+    load();
+    vector<indication>::iterator i,b;
+    for (int N=1; N<6;N++)
+    {
+        if (N==1)
+            myOut=string("Исходная строка: ");
+        else
+            myOut=string("Результат при N=")+to_string(N)+string(": ");
+        for (i = b = indications.begin(); i!=indications.end(); i++)
+            if(i == indications.begin()                         // Первый отсчет
+               || indications[i-b].two()                        // Все двойные отсчеты
+               || i+1==indications.end()                        // Последний отсчет
+               || ((i-indications.begin()+1)%N==0
+               && !indications[i-b].two()))                     // Кратен N и единичен
+            {
+                myOut+=showPair(*i);
+                if (i+1!=indications.end())myOut+=", ";
+            }
+    qDebug()<<myOut.c_str();
+    }
+    return a.exec();
+}
